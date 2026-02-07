@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: paperforge-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: DEFAULT_PROVIDER
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
