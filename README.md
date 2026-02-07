@@ -250,16 +250,6 @@ paperforge-ai/
 └── storage/                # Project history
 ```
 
-## Key Enhancements from PaperForge AI
-
-| Feature | Original | Enhanced |
-|---------|----------|----------|
-| Pipeline | Single-stage | 3-stage (Plan → Analyze → Code) |
-| File Generation | All at once | Sequential with context |
-| Error Fixing | Replace entire file | SEARCH/REPLACE (minimal changes) |
-| JSON Parsing | Basic | Robust multi-fallback parsing |
-| Deployment | ZIP only | Auto Docker deploy with live URL |
-
 ## Supported Papers
 
 Works best with papers that have:
