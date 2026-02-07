@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperForge AI - Research Paper to Running MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-terminal: #0d1117;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-dim: #8b949e;
+            --accent: #58a6ff;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --purple: #a371f7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header h1 span {
+            color: var(--accent);
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .upload-area .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area p {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .file-selected {
+            background: rgba(63, 185, 80, 0.1);
+            border-color: var(--success);
+        }
+
+        .file-selected .file-name {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Options */
+        .options {
+            margin-bottom: 1.5rem;
+        }
+
+        .option-group {
+            margin-bottom: 1rem;
+        }
+
+        .option-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .option-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .option-btn.selected {
+            background: rgba(88, 166, 255, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .option-btn .lang-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #79c0ff;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Terminal */
+        .terminal {
+            background: var(--bg-terminal);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 550px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #21262d;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #f85149; }
+        .terminal-dot.yellow { background: #d29922; }
+        .terminal-dot.green { background: #3fb950; }
+
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .terminal-line .prefix {
+            color: var(--success);
+            margin-right: 0.5rem;
+            user-select: none;
+        }
+
+        .terminal-line.info { color: var(--text-dim); }
+        .terminal-line.success { color: var(--success); }
+        .terminal-line.warning { color: var(--warning); }
+        .terminal-line.error { color: var(--error); }
+        .terminal-line.step { color: var(--accent); font-weight: 600; }
+
+        /* Progress Steps */
+        .progress-steps {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.4rem 0;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .step-item.active {
+            color: var(--accent);
+        }
+
+        .step-item.complete {
+            color: var(--success);
+        }
+
+        .step-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            border: 2px solid currentColor;
+        }
+
+        .step-item.active .step-icon {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            animation: pulse 1s infinite;
+        }
+
+        .step-item.complete .step-icon {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Result Card */
+        .result-card {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.5rem;
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+        }
+
+        .result-card.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            color: var(--success);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .result-info {
+            margin-bottom: 1rem;
+        }
+
+        .result-info p {
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+
+        .result-info strong {
+            color: var(--text);
+        }
+
+        .live-url {
+            display: block;
+            background: var(--bg-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            font-family: monospace;
+            color: var(--accent);
+            word-break: break-all;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #46c25f;
+        }
+
+        .btn-secondary {
+            background: var(--bg-dark);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* API Key Warning */
+        .api-warning {
+            background: rgba(210, 153, 34, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .api-warning .icon {
+            font-size: 1.25rem;
+        }
+
+        .api-warning code {
+            background: var(--bg-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Hidden file input */
+        #file-input {
+            display: none;
+        }
+
+        /* Idle state */
+        .idle-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .idle-message .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PaperForge AI</h1>
+            <p>Upload a research paper → Get a running MVP with live URL</p>
+        </div>
+
+        {% if not has_api_key %}
+        <div class="api-warning">
+            <span class="icon">⚠️</span>
+            <div>
+                <strong>API Key Required</strong>
+                <p style="margin-top: 0.5rem; color: var(--text-dim);">
+                    Set your API key in a .env file or environment:<br>
+                    <code>OPENAI_API_KEY=your-key</code> or <code>GEMINI_API_KEY=your-key</code>
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="main-grid">
+            <!-- Left Panel: Upload & Options -->
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">
+                        <span class="icon">📄</span>
+                        Upload Research Paper
+                    </div>
+
+                    <div class="upload-area" id="upload-area">
+                        <div class="icon">📁</div>
+                        <div class="upload-text">Drop PDF or TXT file here</div>
+                        <p>or click to browse</p>
+                        <p class="file-name" style="display: none;"></p>
+                    </div>
+                    <input type="file" id="file-input" accept=".pdf,.txt">
+
+                    <div class="options">
+                        <div class="option-group">
+                            <label>AI Provider</label>
+                            <div class="option-buttons">
+                                <button class="option-btn {% if default_provider == 'openai' %}selected{% endif %}" data-option="provider" data-value="openai">
+                                    <span class="lang-icon">🤖</span> OpenAI
+                                </button>
+                                <button class="option-btn {% if default_provider == 'gemini' %}selected{% endif %}" data-option="provider" data-value="gemini">
+                                    <span class="lang-icon">💎</span> Gemini
+                                </button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label>Target Language</label>
+                            <div class="option-buttons">
+                                <button class="option-btn selected" data-option="language" data-value="python">
+                                    <span class="lang-icon">🐍</span> Python
+                                </button>
+                                <button class="option-btn" data-option="language" data-value="nodejs">
+                                    <span class="lang-icon">💚</span> Node.js
+                                </button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label>Generation Mode</label>
+                            <div class="option-buttons">
+                                <button class="option-btn selected" data-option="mode" data-value="simple" title="AI generates a complete app with proper UI (recommended)">
+                                    <span class="lang-icon">⚡</span> Smart
+                                </button>
+                                <button class="option-btn" data-option="mode" data-value="full" title="Multi-stage pipeline: analyze then generate (legacy)">
+                                    <span class="lang-icon">📊</span> Legacy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="submit-btn" id="submit-btn" disabled>
+                        <span>🚀</span>
+                        Generate & Run MVP
+                    </button>
+                </div>
+
+                <!-- Result Card -->
+                <div class="result-card" id="result-card">
+                    <div class="result-title">🎉 Your MVP is Live!</div>
+                    <div class="result-info">
+                        <p><strong>Project:</strong> <span id="result-title"></span></p>
+                        <p><strong>Algorithm:</strong> <span id="result-algorithm"></span></p>
+                        <p><strong>Language:</strong> <span id="result-language"></span></p>
+                    </div>
+                    <div class="live-url" id="live-url"></div>
+                    <div class="btn-group">
+                        <a href="#" class="action-btn btn-primary" id="open-btn" target="_blank">
+                            <span>🌐</span>
+                            Open MVP
+                        </a>
+                        <a href="#" class="action-btn btn-secondary" id="download-btn">
+                            <span>📦</span>
+                            Download Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Terminal -->
+            <div class="right-panel">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <span class="terminal-dot red"></span>
+                                <span class="terminal-dot yellow"></span>
+                                <span class="terminal-dot green"></span>
+                            </div>
+                            <div class="terminal-title">PaperForge AI - build process</div>
+                        </div>
+                        <div class="terminal-body" id="terminal">
+                            <!-- Progress Steps -->
+                            <div class="progress-steps" id="progress-steps" style="display: none;">
+                                <div class="step-item" data-step="1">
+                                    <div class="step-icon">1</div>
+                                    <span>Extract text from paper</span>
+                                </div>
+                                <div class="step-item" data-step="2">
+                                    <div class="step-icon">2</div>
+                                    <span>Analyze with AI</span>
+                                </div>
+                                <div class="step-item" data-step="3">
+                                    <div class="step-icon">3</div>
+                                    <span>Generate web API code</span>
+                                </div>
+                                <div class="step-item" data-step="4">
+                                    <div class="step-icon">4</div>
+                                    <span>Install dependencies</span>
+                                </div>
+                                <div class="step-item" data-step="5">
+                                    <div class="step-icon">5</div>
+                                    <span>Start server</span>
+                                </div>
+                                <div class="step-item" data-step="6">
+                                    <div class="step-icon">6</div>
+                                    <span>Docker deployment</span>
+                                </div>
+                            </div>
+
+                            <!-- Log output -->
+                            <div id="terminal-output">
+                                <div class="idle-message">
+                                    <div class="icon">⚡</div>
+                                    <p>Upload a research paper to begin</p>
+                                    <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+                                        Your MVP will be live in under a minute
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let selectedFile = null;
+        let selectedLanguage = 'python';
+        let selectedProvider = '{{ default_provider or "openai" }}';
+        let selectedMode = 'simple';
+
+        // DOM Elements
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const terminal = document.getElementById('terminal-output');
+        const progressSteps = document.getElementById('progress-steps');
+        const resultCard = document.getElementById('result-card');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            const validExtensions = ['.pdf', '.txt'];
+            const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validExtensions.includes(ext)) {
+                alert('Please upload a PDF or TXT file');
+                return;
+            }
+
+            selectedFile = file;
+            uploadArea.classList.add('file-selected');
+            uploadArea.querySelector('.upload-text').textContent = 'File selected:';
+            uploadArea.querySelector('.file-name').textContent = file.name;
+            uploadArea.querySelector('.file-name').style.display = 'block';
+            uploadArea.querySelector('.icon').textContent = '✓';
+
+            submitBtn.disabled = false;
+        }
+
+        // Option buttons
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const option = btn.dataset.option;
+                const value = btn.dataset.value;
+
+                btn.parentElement.querySelectorAll('.option-btn').forEach(b => {
+                    b.classList.remove('selected');
+                });
+                btn.classList.add('selected');
+
+                if (option === 'language') {
+                    selectedLanguage = value;
+                } else if (option === 'provider') {
+                    selectedProvider = value;
+                } else if (option === 'mode') {
+                    selectedMode = value;
+                }
+            });
+        });
+
+        // Submit / Generate
+        submitBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // Reset UI
+            resultCard.classList.remove('show');
+            progressSteps.style.display = 'block';
+            terminal.innerHTML = '';
+            document.querySelectorAll('.step-item').forEach(s => {
+                s.classList.remove('active', 'complete');
+                const icon = s.querySelector('.step-icon');
+                icon.textContent = s.dataset.step;
+            });
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>⏳</span> Building MVP...';
+
+            // Upload file
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('language', selectedLanguage);
+            formData.append('provider', selectedProvider);
+            formData.append('mode', selectedMode);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    logToTerminal(data.error, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>🚀</span> Generate & Run MVP';
+                    return;
+                }
+
+                // Connect to SSE for progress
+                const eventSource = new EventSource(`/progress/${data.session_id}`);
+
+                eventSource.onmessage = (event) => {
+                    const msg = JSON.parse(event.data);
+                    handleProgressEvent(msg);
+
+                    if (msg.event === 'complete' || msg.event === 'error') {
+                        eventSource.close();
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>🚀</span> Generate & Run MVP';
+                    }
+                };
+
+                eventSource.onerror = () => {
+                    eventSource.close();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>🚀</span> Generate & Run MVP';
+                };
+
+            } catch (err) {
+                logToTerminal('Error: ' + err.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>🚀</span> Generate & Run MVP';
+            }
+        });
+
+        function handleProgressEvent(msg) {
+            switch (msg.event) {
+                case 'step':
+                    updateStep(msg.data);
+                    if (msg.data.message) {
+                        logToTerminal(msg.data.message, 'step');
+                    }
+                    break;
+
+                case 'log':
+                    logToTerminal(msg.data.message, msg.data.type || 'info');
+                    break;
+
+                case 'complete':
+                    showResult(msg.data);
+                    break;
+
+                case 'error':
+                    logToTerminal('Error: ' + msg.data.message, 'error');
+                    break;
+            }
+        }
+
+        function updateStep(data) {
+            const stepEl = document.querySelector(`.step-item[data-step="${data.step}"]`);
+            if (!stepEl) return;
+
+            if (data.status === 'running') {
+                document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+                stepEl.classList.add('active');
+            } else if (data.status === 'complete') {
+                stepEl.classList.remove('active');
+                stepEl.classList.add('complete');
+                stepEl.querySelector('.step-icon').textContent = '✓';
+            }
+        }
+
+        function logToTerminal(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+
+            const prefix = document.createElement('span');
+            prefix.className = 'prefix';
+            prefix.textContent = type === 'error' ? '✗' : '›';
+
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            line.appendChild(prefix);
+            line.appendChild(text);
+            terminal.appendChild(line);
+
+            // Auto scroll
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function showResult(data) {
+            logToTerminal('─'.repeat(40), 'info');
+            logToTerminal('🎉 MVP is live and running!', 'success');
+            logToTerminal(`Access at: ${data.live_url}`, 'success');
+
+            document.getElementById('result-title').textContent = data.analysis.title;
+            document.getElementById('result-algorithm').textContent = data.analysis.algorithm;
+            document.getElementById('result-language').textContent = data.analysis.language;
+            document.getElementById('live-url').textContent = data.live_url;
+            document.getElementById('open-btn').href = data.live_url;
+            document.getElementById('download-btn').href = data.download_url;
+
+            resultCard.classList.add('show');
+        }
+    </script>
+</body>
+</html>
